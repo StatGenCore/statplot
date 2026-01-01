@@ -6,6 +6,9 @@
 
 ## Citation
 
+Source:
+[`DESCRIPTION`](https://github.com/StatGenCore/statplot/blob/main/DESCRIPTION)
+
 Arbet J (2026). *statplot: Convenient Tools for Generating Standard
 Statistical Plots*. R package version 0.1.0,
 <https://statgencore.github.io/statplot/>.
