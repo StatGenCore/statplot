@@ -1,0 +1,23 @@
+# Package index
+
+## All functions
+
+- [`comma()`](https://statgencore.github.io/statplot/reference/comma.md)
+  : Format numbers with comma as thousands separator
+- [`plot_2_categorical_vars()`](https://statgencore.github.io/statplot/reference/plot_2_categorical_vars.md)
+  : Stacked percent bar chart for two categorical variables
+- [`plot_bars()`](https://statgencore.github.io/statplot/reference/plot_bars.md)
+  : Bar plot by group
+- [`plot_effectsize_01_intervals()`](https://statgencore.github.io/statplot/reference/plot_effectsize_01_intervals.md)
+  : Plot effect-size estimates and confidence intervals. All values must
+  be between 0 and 1.
+- [`plot_numeric_by_group()`](https://statgencore.github.io/statplot/reference/plot_numeric_by_group.md)
+  : Violin + boxplot of a numeric variable by a grouping factor
+- [`plot_survival_curves()`](https://statgencore.github.io/statplot/reference/plot_survival_curves.md)
+  : Kaplan–Meier plot from a Surv object
+- [`plot_upset()`](https://statgencore.github.io/statplot/reference/plot_upset.md)
+  : Build an upset plot from a named list of sets
+- [`table_overall()`](https://statgencore.github.io/statplot/reference/table_overall.md)
+  : Create a table that summarizes the entire cohort.
+- [`table_overall_and_group()`](https://statgencore.github.io/statplot/reference/table_overall_and_group.md)
+  : Create overall and by-group summary table

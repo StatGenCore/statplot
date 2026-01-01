@@ -1,0 +1,75 @@
+# template.R.package
+
+- [template.R.package](#templaterpackage)
+  - [Installation](#installation)
+  - [Example](#example)
+
+The goal of template.R.package is to …
+
+## Installation
+
+You can install the development version of template.R.package from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("jarbet/template-R-package")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+``` r
+library(template.R.package)
+## basic example code
+```
+
+What is special about using `README.Rmd` instead of just `README.md`?
+You can include R chunks like so:
+
+``` r
+summary(cars)
+#>      speed           dist       
+#>  Min.   : 4.0   Min.   :  2.00  
+#>  1st Qu.:12.0   1st Qu.: 26.00  
+#>  Median :15.0   Median : 36.00  
+#>  Mean   :15.4   Mean   : 42.98  
+#>  3rd Qu.:19.0   3rd Qu.: 56.00  
+#>  Max.   :25.0   Max.   :120.00
+```
+
+You’ll still need to render `README.Rmd` regularly, to keep `README.md`
+up-to-date. `devtools::build_readme()` is handy for this.
+
+You can also embed plots, for example:
+
+![](reference/figures/README-pressure-1.png)
+
+In that case, don’t forget to commit and push the resulting figure
+files, so they display on GitHub and CRAN.
+
+# Package index
+
+## All functions
+
+- [`comma()`](https://statgencore.github.io/statplot/reference/comma.md)
+  : Format numbers with comma as thousands separator
+- [`plot_2_categorical_vars()`](https://statgencore.github.io/statplot/reference/plot_2_categorical_vars.md)
+  : Stacked percent bar chart for two categorical variables
+- [`plot_bars()`](https://statgencore.github.io/statplot/reference/plot_bars.md)
+  : Bar plot by group
+- [`plot_effectsize_01_intervals()`](https://statgencore.github.io/statplot/reference/plot_effectsize_01_intervals.md)
+  : Plot effect-size estimates and confidence intervals. All values must
+  be between 0 and 1.
+- [`plot_numeric_by_group()`](https://statgencore.github.io/statplot/reference/plot_numeric_by_group.md)
+  : Violin + boxplot of a numeric variable by a grouping factor
+- [`plot_survival_curves()`](https://statgencore.github.io/statplot/reference/plot_survival_curves.md)
+  : Kaplan–Meier plot from a Surv object
+- [`plot_upset()`](https://statgencore.github.io/statplot/reference/plot_upset.md)
+  : Build an upset plot from a named list of sets
+- [`table_overall()`](https://statgencore.github.io/statplot/reference/table_overall.md)
+  : Create a table that summarizes the entire cohort.
+- [`table_overall_and_group()`](https://statgencore.github.io/statplot/reference/table_overall_and_group.md)
+  : Create overall and by-group summary table
+
