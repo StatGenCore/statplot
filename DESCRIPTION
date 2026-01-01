@@ -1,9 +1,9 @@
-Package: template.R.package
-Title: What the Package Does (One Line, Title Case)
+Package: statplot
+Title: Convenient Tools for Generating Standard Statistical Plots
 Version: 0.1.0
 Authors@R: 
     person("Jaron", "Arbet", , "jarbet@coh.org", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: statplot is an R package designed to simplify the creation of common statistical plots. It provides convenient wrapper functions for generating clean, publication-ready visualizations with minimal code. Whether you’re exploring data, performing model diagnostics, or presenting results, statplot helps you focus on analysis rather than plotting details.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -11,3 +11,20 @@ RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Imports: 
+    boot,
+    BoutrosLab.plotting.general,
+    broom,
+    dplyr,
+    effectsize,
+    forcats,
+    ggplot2,
+    ggsurvfit,
+    ggupset,
+    gtsummary,
+    labelled,
+    scales,
+    stringr,
+    survival,
+    tibble,
+    UpSetR

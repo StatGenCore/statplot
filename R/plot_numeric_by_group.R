@@ -1,0 +1,241 @@
+#' Violin + boxplot of a numeric variable by a grouping factor
+#'
+#' Create a violin plot with an overlaid boxplot showing the distribution of a
+#' numeric variable split by a factor. The function expects the grouping column
+#' to be a factor and the outcome to be numeric.
+#'
+#' @param yvar Character scalar. Column name (in `d`) of the numeric variable to plot.
+#'   Must be length 1 and refer to a numeric column in `d`.
+#' @param group Character scalar. Column name (in `d`) of the grouping factor.
+#'   Must be length 1 and refer to a factor column in `d`.
+#' @param d A data.frame containing the variables.
+#' @param yvar_label Optional character scalar for the y-axis label. Defaults to `yvar`.
+#'   If supplied, must be length 1.
+#' @param group_label Optional character scalar for the x-axis label. Defaults to `group`.
+#'   If supplied, must be length 1.
+#' @param title Optional character scalar for the plot title. Defaults to `"<yvar> by <group>"`.
+#'   If supplied, must be length 1.
+#' @param group_colors Optional character vector of colours to use for the grouping levels.
+#'   Must be length equal to `nlevels(d[[group]])` when supplied. Use colour names or hex codes.
+#' @param show_effect_size Logical scalar. If TRUE the subtitle will include epsilon-squared and p-value.
+#' @param n_boot Integer-like numeric scalar. Number of bootstrap samples for estimating CI of epsilon-squared.
+#'   Default is 2000. Must be a single numeric value >= 100.
+#' @param xaxis_labels_nchar_wrap Numeric scalar. Maximum line width (number of characters) used to wrap
+#'   group labels on the x-axis before appending the sample size. Defaults to 20. Must be a single positive numeric value.
+#' @return A list containing the ggplot2 object, epsilon-squared estimate and 95% CI, p-value.
+#' @examples
+#' data(mtcars)
+#' mtcars$gear <- factor(mtcars$gear)
+#' p <- plot_numeric_by_group(
+#'   yvar = "mpg",
+#'   group = "gear",
+#'   d = mtcars
+#' )
+#' p$ggplot
+#' @export
+plot_numeric_by_group <- function(
+    yvar,
+    group,
+    d,
+    yvar_label = NULL,
+    group_label = NULL,
+    title = NULL,
+    group_colors = NULL,
+    show_effect_size = TRUE,
+    n_boot = 1000,
+    xaxis_labels_nchar_wrap = 20
+) {
+    #### validate inputs
+    stopifnot(length(yvar) == 1, is.character(yvar))
+    stopifnot(length(group) == 1, is.character(group))
+    stopifnot(is.data.frame(d))
+    stopifnot(all(c(yvar, group) %in% names(d)))
+
+    # column types
+    stopifnot(is.numeric(d[[yvar]]))
+    stopifnot(is.factor(d[[group]]))
+
+    # optional labels/title must be NULL or single character scalar
+    stopifnot(
+        is.null(yvar_label) |
+            (length(yvar_label) == 1 & is.character(yvar_label))
+    )
+    stopifnot(
+        is.null(group_label) |
+            (length(group_label) == 1 & is.character(group_label))
+    )
+    stopifnot(
+        is.null(title) |
+            (length(title) == 1 & is.character(title))
+    )
+
+    # validate xaxis label wrap
+    stopifnot(
+        length(xaxis_labels_nchar_wrap) == 1 &
+            is.numeric(xaxis_labels_nchar_wrap) &
+            xaxis_labels_nchar_wrap > 0
+    )
+
+    # group_colors validation: NULL or character vector with length equal to group levels
+    group_nlevels <- nlevels(d[[group]])
+    stopifnot(
+        is.null(group_colors) |
+            (is.vector(group_colors) &
+                is.character(group_colors) &
+                length(group_colors) == group_nlevels)
+    )
+
+    # show_effect_size must be logical scalar
+    stopifnot(length(show_effect_size) == 1 & is.logical(show_effect_size))
+
+    # n_boot must be numeric scalar >= 100 (as documented)
+    stopifnot(
+        length(n_boot) == 1 & is.numeric(n_boot) & n_boot >= 10
+    )
+
+    if (is.null(yvar_label)) {
+        yvar_label <- yvar
+    }
+    if (is.null(group_label)) {
+        group_label <- group
+    }
+    if (is.null(title)) {
+        title <- paste0(yvar_label, " by ", group_label)
+    }
+
+    ### prepare data for plot
+    # subset to complete cases for the two vars
+    d_sub <- d[!is.na(d[[yvar]]) & !is.na(d[[group]]), ]
+
+    # --- NEW: compute per-group sample sizes (kept) ---
+    total_n_labels <- d_sub |>
+        dplyr::group_by(x = .data[[group]]) |>
+        dplyr::summarize(
+            n = dplyr::n(),
+            y_max = max(.data[[yvar]], na.rm = TRUE),
+            y_min = min(.data[[yvar]], na.rm = TRUE),
+            .groups = "drop"
+        ) |>
+        dplyr::mutate(
+            y_range = y_max - y_min,
+            y_pos = y_max + pmax(y_range * 0.05, 0.5),
+            label = paste0(
+                "n=",
+                format(n, big.mark = ",", scientific = FALSE, trim = TRUE)
+            )
+        )
+
+    # --- compute Kruskal-Wallis test p-value ---
+    kruskal_res <- stats::kruskal.test(
+        stats::as.formula(paste0(yvar, " ~ ", group)),
+        data = d_sub
+    )
+    p_val <- kruskal_res$p.value
+
+    # epsilon squared effect size
+    if (show_effect_size) {
+        set.seed(123)
+        es <- effectsize::rank_epsilon_squared(
+            stats::as.formula(paste0(yvar, " ~ ", group)),
+            data = d_sub,
+            alternative = "two.sided"
+        )
+        es_est <- as.numeric(es$rank_epsilon_squared)
+        es_ci_low <- as.numeric(es$CI_low)
+        es_ci_high <- as.numeric(es$CI_high)
+
+        es_text <- sprintf(
+            " = %.2f (%.2f, %.2f), p",
+            es_est,
+            es_ci_low,
+            es_ci_high
+        )
+        p_text <- BoutrosLab.plotting.general::display.statistical.result(
+            x = p_val,
+            statistic.type = es_text,
+            symbol = '= '
+        )
+        es_plotmath <- expression(epsilon^2)
+        p_text <- as.expression(bquote(.(es_plotmath[[1]]) ~ .(p_text[[1]])))
+    } else {
+        p_text <- NULL
+        es <- NULL
+    }
+
+    p <- ggplot2::ggplot(
+        d_sub,
+        ggplot2::aes(
+            x = .data[[group]],
+            y = .data[[yvar]],
+            fill = .data[[group]]
+        )
+    ) +
+        # narrower violins and consistent dodge so they don't overlap
+        ggplot2::geom_violin(
+            width = 0.9,
+            position = ggplot2::position_dodge(width = 0.9),
+            show.legend = FALSE
+        ) +
+        ggplot2::geom_boxplot(
+            width = 0.2,
+            position = ggplot2::position_dodge(width = 0.9),
+            color = "black",
+            alpha = 0.5,
+            outlier.shape = 21,
+            outlier.size = 1.5,
+            outlier.colour = "black",
+            outlier.fill = "black",
+            show.legend = FALSE
+        ) +
+        ggplot2::theme(
+            legend.position = "none"
+        ) +
+        ## --- modified: bold title and axis labels like plot_2_categorical_vars ---
+        ggplot2::ggtitle(
+            stringr::str_wrap(title, width = 50),
+            subtitle = p_text
+        ) +
+        ggplot2::xlab(group_label) +
+        ggplot2::ylab(yvar_label) +
+
+        # --- UPDATED: show group label first and sample size below in parentheses ---
+        ggplot2::scale_x_discrete(
+            labels = function(x) {
+                grp_wrapped <- stringr::str_wrap(
+                    x,
+                    width = xaxis_labels_nchar_wrap
+                )
+                counts <- total_n_labels$label[match(x, total_n_labels$x)] # "n=NN"
+                paste0(grp_wrapped, "\n(", counts, ")")
+            }
+        ) +
+
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold"),
+            axis.title.x = ggplot2::element_text(face = "bold"),
+            axis.title.y = ggplot2::element_text(face = "bold")
+        )
+
+    if (!is.null(group_colors)) {
+        p <- p + ggplot2::scale_fill_manual(values = group_colors)
+    }
+
+    es2 <- data.frame(
+        outcome = yvar,
+        predictor = group,
+        value = as.numeric(es$rank_epsilon_squared),
+        CI_low = as.numeric(es$CI_low),
+        CI_high = as.numeric(es$CI_high),
+        stringsAsFactors = FALSE,
+        effect_type = "epsilon_squared",
+        pvalue = p_val,
+        n = nrow(d_sub)
+    )
+    res <- list(
+        ggplot = p,
+        stats = es2
+    )
+
+    return(res)
+}

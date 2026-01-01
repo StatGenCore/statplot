@@ -1,4 +1,4 @@
-# template.R.package 0.1.0 - YYYY-MM-DD
+# statplot 0.1.0 - 2026-01-01
 
 ## Added
 
