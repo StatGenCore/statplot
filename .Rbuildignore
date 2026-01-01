@@ -1,0 +1,7 @@
+^template-R-package\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+^LICENSE\.md$
+^[.]?air[.]toml$
+^\.vscode$
+^\.github$
