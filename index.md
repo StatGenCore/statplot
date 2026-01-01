@@ -3,7 +3,10 @@
 - [statplot](#statplot)
   - [Installation](#installation)
 
-The goal of statplot is to …
+`statplot` is an R package designed to simplify the creation of figures
+used in common statistical analyses. It provides convenient wrapper
+functions for generating clean, publication-ready visualizations with
+minimal code.
 
 ## Installation
 
